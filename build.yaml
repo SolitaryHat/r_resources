@@ -1,0 +1,20 @@
+targets:
+  $default:
+    builders:
+      flutter_resources:
+        enabled: true
+
+builders:
+  # name of the builder
+  flutter_resources:
+    # library URI containing the builder - maps to `lib/builder.dart`
+    import: "package:flutter_resources/flutter_resources.dart"
+    # Name of the function in the above library to call.
+    builder_factories: ["assetScannerBuilder"]
+    # The mapping from the source extension to the generated file extension
+    build_extensions: {r'$lib$': ["r.dart"]}
+    # Will automatically run on any package that depends on it
+    auto_apply: dependents
+    # Generate the output directly into the package, not to a hidden cache dir
+    build_to: source
+    # applies_builders: ["source_gen|combining_builder"]
