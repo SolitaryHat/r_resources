@@ -1,3 +1,4 @@
+import 'package:example/r.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -49,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 100,
           height: 100,
           child: Image.asset(
-            'assets/images/ic_individual_schools.png',
+            R.images.ic_individual_schools,
             fit: BoxFit.contain,
           ),
         ),

@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:build/build.dart';
+import 'package:flutter_resources/src/class_gen/image_class_generator.dart';
+import 'package:flutter_resources/src/utils.dart';
 import 'package:glob/glob.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart' as path;
 
-const _defaultGeneratedClassName = 'R';
 const _defaultGeneratedClassPath = 'lib';
 const _defaultSourceFilesDirName = 'lib/';
 const _optionsFileName = 'flutter_resources_options.yaml';
@@ -17,14 +18,11 @@ const _generatedFileHeader =
 const _ignoreCommentForLinter = '// ignore_for_file: '
     'always_specify_types,'
     'lines_longer_than_80_chars,'
+    'non_constant_identifier_names,'
     'prefer_double_quotes';
-
-final _identifierRegExp = RegExp(r'^([(_|$)a-zA-Z]+([_a-zA-Z0-9])*)$');
-final _invalidIdentifierCharecatersRegExp = RegExp(r'[^_a-zA-Z0-9]+');
 
 class _GeneratorOptions {
   const _GeneratorOptions._({
-    this.className = _defaultGeneratedClassName,
     this.path = _defaultGeneratedClassPath,
   });
 
@@ -32,19 +30,15 @@ class _GeneratorOptions {
 
   factory _GeneratorOptions.fromYamlMap(YamlMap yamlMap) {
     return _GeneratorOptions._(
-      className: yamlMap['className'] as String ?? _defaultGeneratedClassName,
       path: yamlMap['path'] as String ?? _defaultGeneratedClassPath,
     );
   }
 
-  final String className;
   final String path;
 
   bool get isPathCorrect =>
       path == _defaultGeneratedClassPath ||
       path.startsWith(_defaultSourceFilesDirName);
-
-  String get classFileName => '${className.toLowerCase()}.dart';
 }
 
 class ResourcesBuilder implements Builder {
@@ -56,24 +50,30 @@ class ResourcesBuilder implements Builder {
     final options = _generatorOptions;
     if (!options.isPathCorrect) {
       log.severe(
-          'Overriden path from $_optionsFileName shuld start with "lib/"');
+        'Overriden path from $_optionsFileName should start with "lib/"',
+      );
       return;
     }
 
-    final rClass =
-        await _generateRFileContent(buildStep, pubspecYamlMap, options);
-    log.info('CLASS = $rClass');
+    final rClass = await _generateRFileContent(
+      buildStep,
+      pubspecYamlMap,
+      options,
+    );
     if (rClass.isEmpty) return;
 
     final dir = options.path.startsWith('lib') ? options.path : 'lib';
-    final output = AssetId(buildStep.inputId.package, path.join(dir, 'r.dart'));
+    final output = AssetId(
+      buildStep.inputId.package,
+      path.join(dir, 'r.dart'),
+    );
     return buildStep.writeAsString(output, rClass);
   }
 
   @override
   Map<String, List<String>> get buildExtensions {
     final options = _generatorOptions;
-    var extensions = options.classFileName;
+    var extensions = 'r.dart';
     if (options.path != _defaultGeneratedClassPath && options.isPathCorrect) {
       extensions =
           '${options.path.replaceFirst(_defaultSourceFilesDirName, '')}'
@@ -112,49 +112,36 @@ class ResourcesBuilder implements Builder {
     YamlMap pubspecYamlMap,
     _GeneratorOptions options,
   ) async {
-    final assetPathsClass = await _createResourceClassString(
-      pubspecYamlMap,
+    final assetPathList = await _findAssetPathsFromPubspec(
       buildStep,
-      options.className,
+      pubspecYamlMap,
     );
+
+    final imagesClassGenerator = ImageClassGenerator(
+      assetPathList: assetPathList,
+    );
+    final imageResourcesClass = await imagesClassGenerator.generate();
 
     final generatedFileContent = StringBuffer()
       ..writeln(_generatedFileHeader)
-      ..write(assetPathsClass.toString());
+      ..writeln()
+      ..writeln(_ignoreCommentForLinter)
+      ..writeln('class R {');
 
-    return generatedFileContent.toString();
-  }
-
-  Future<String> _createResourceClassString(
-    YamlMap pubspecYamlMap,
-    BuildStep buildStep,
-    String className,
-  ) async {
-    final assetPaths =
-        await _findAssetPathsFromPubspec(buildStep, pubspecYamlMap);
-    final classBuffer = StringBuffer();
-    if (assetPaths.isNotEmpty) {
-      classBuffer
-        ..writeln()
-        ..writeln(_ignoreCommentForLinter)
-        ..writeln('class $className {')
-        ..writeln('  static const package = \'${buildStep.inputId.package}\';')
-        ..writeln();
-      for (final assetPath in assetPaths) {
-        final propertyName = _createPropertyName(assetPath);
-
-        if (propertyName.isNotEmpty) {
-          classBuffer
-            ..writeln('  /// ![](${path.absolute(assetPath)})')
-            ..writeln('  static const $propertyName = \'$assetPath\';')
-            ..writeln();
-        }
-      }
-
-      classBuffer.writeln('}');
+    if (imageResourcesClass.isNotEmpty) {
+      generatedFileContent.writeln(
+        '  static final images = ${imagesClassGenerator.className}();',
+      );
     }
 
-    return classBuffer.toString();
+    generatedFileContent..writeln('}')..writeln();
+
+    if (imageResourcesClass.isNotEmpty) {
+      generatedFileContent.write(imageResourcesClass);
+    }
+
+    generatedFileContent.writeln();
+    return generatedFileContent.toString();
   }
 
   Future<List<String>> _findAssetPathsFromPubspec(
@@ -162,17 +149,19 @@ class ResourcesBuilder implements Builder {
     YamlMap pubspecYamlMap,
   ) async {
     final globList = _getUniqueAssetsGlobsFromPubspec(pubspecYamlMap);
-    log.info('globList = $globList');
     final assetsSet = <AssetId>{};
 
     for (final glob in globList) {
       final assets = await buildStep.findAssets(glob).toList();
-
-      log.info('assets = $assets');
-      assetsSet.addAll(assets);
+      assetsSet.addAll(
+        assets.where(
+          // remove invisible files: .gitignore, .DS_Store, etc.
+          (it) => it.pathSegments.last.fileName.isNotEmpty,
+        ),
+      );
     }
 
-    return assetsSet.map((e) => e.path).toList();
+    return assetsSet.map((it) => it.path).toList();
   }
 
   Set<Glob> _getUniqueAssetsGlobsFromPubspec(YamlMap pubspecYamlMap) {
@@ -198,24 +187,5 @@ class ResourcesBuilder implements Builder {
     }
 
     return {};
-  }
-
-  String _createPropertyName(String assetPath) {
-    var propertyName = assetPath.substring(
-      assetPath.indexOf('/') + 1,
-      assetPath.lastIndexOf('.'),
-    );
-    if (propertyName.isEmpty) return propertyName; // ignore .DS_Store file
-
-    if (_identifierRegExp.hasMatch(propertyName)) {
-      propertyName = propertyName.replaceAll('/', '_');
-    } else {
-      propertyName = propertyName.replaceAllMapped(
-        _invalidIdentifierCharecatersRegExp,
-        (match) => '_',
-      );
-    }
-
-    return propertyName;
   }
 }
