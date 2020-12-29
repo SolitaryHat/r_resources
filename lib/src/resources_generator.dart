@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:build/build.dart';
 import 'package:flutter_resources/src/class_gen/image_class_generator.dart';
+import 'package:flutter_resources/src/class_gen/svg_class_generator.dart';
 import 'package:flutter_resources/src/utils.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
@@ -124,6 +125,9 @@ class ResourcesBuilder implements Builder {
     final imagesClassGenerator = ImageClassGenerator(assets);
     final imageResourcesClass = await imagesClassGenerator.generate();
 
+    final svgClassGenerator = SvgClassGenerator(assets);
+    final svgResourcesClass = await svgClassGenerator.generate();
+
     final generatedFileContent = StringBuffer()
       ..writeln(generatedFileHeader)
       ..writeln()
@@ -132,17 +136,23 @@ class ResourcesBuilder implements Builder {
       ..writeln('class R {');
 
     if (imageResourcesClass.isNotEmpty) {
-      generatedFileContent.writeln(
-        '  static final images = ${imagesClassGenerator.className}();',
-      );
+      generatedFileContent
+        ..writeln(
+          '  static final images = ${imagesClassGenerator.className}();',
+        )
+        ..writeln(
+          '  static final svg = ${svgClassGenerator.className}();',
+        );
     }
 
     generatedFileContent.writeln('}');
 
     if (imageResourcesClass.isNotEmpty) {
-      generatedFileContent
-        ..writeln()
-        ..writeln(imageResourcesClass);
+      generatedFileContent..writeln()..writeln(imageResourcesClass);
+    }
+
+    if (svgResourcesClass.isNotEmpty) {
+      generatedFileContent..writeln()..writeln(svgResourcesClass);
     }
 
     return generatedFileContent.toString();

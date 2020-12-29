@@ -1,5 +1,6 @@
 import 'package:example/r.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,16 +23,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -45,14 +36,28 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: Image.asset(
-            '',//R.images.ic_individual_schools,
-            fit: BoxFit.contain,
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 8),
+            Text('Image res:'),
+            Image.asset(
+              R.images.ic_individual_schools,
+              width: 100,
+              height: 100,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 8),
+            Text('SVG res:'),
+            SvgPicture.asset(
+              R.svg.filter,
+              width: 100,
+              height: 100,
+              fit: BoxFit.contain,
+              color: Colors.amber[500],
+            ),
+            SizedBox(height: 8),
+          ],
         ),
       ),
     );
