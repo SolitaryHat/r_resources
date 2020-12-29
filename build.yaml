@@ -1,16 +1,16 @@
 targets:
   $default:
     builders:
-      flutter_resources:
+      r_resources:
         enabled: true
 
 builders:
   # name of the builder
-  flutter_resources:
+  r_resources:
     # library URI containing the builder - maps to `lib/builder.dart`
-    import: "package:flutter_resources/flutter_resources.dart"
+    import: "package:r_resources/r_resources.dart"
     # Name of the function in the above library to call.
-    builder_factories: ["assetScannerBuilder"]
+    builder_factories: ["rResourcesBuilder"]
     # The mapping from the source extension to the generated file extension
     build_extensions: {r'$lib$': ["r.dart"]}
     # Will automatically run on any package that depends on it

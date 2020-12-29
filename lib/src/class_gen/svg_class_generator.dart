@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:build/build.dart';
-import 'package:flutter_resources/src/class_gen/class_generator.dart';
-import 'package:flutter_resources/src/utils.dart';
+import 'package:r_resources/src/class_gen/class_generator.dart';
+import 'package:r_resources/src/utils.dart';
 
 import 'package:path/path.dart' show absolute;
 

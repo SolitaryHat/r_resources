@@ -195,13 +195,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_resources:
-    dependency: "direct dev"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -382,6 +375,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.5"
+  r_resources:
+    dependency: "direct dev"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.1"
   shelf:
     dependency: transitive
     description:

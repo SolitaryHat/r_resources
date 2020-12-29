@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:build/build.dart';
-import 'package:flutter_resources/src/class_gen/image_class_generator.dart';
-import 'package:flutter_resources/src/class_gen/svg_class_generator.dart';
-import 'package:flutter_resources/src/utils.dart';
+import 'package:r_resources/src/class_gen/image_class_generator.dart';
+import 'package:r_resources/src/class_gen/svg_class_generator.dart';
+import 'package:r_resources/src/utils.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:yaml/yaml.dart';

@@ -1,5 +1,5 @@
 import 'package:build/build.dart';
-import 'package:flutter_resources/src/class_gen/image_class_generator.dart';
+import 'package:r_resources/src/class_gen/image_class_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart';
 

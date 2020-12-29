@@ -1,16 +1,15 @@
 import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
-import 'package:flutter_resources/src/class_gen/image_class_generator.dart';
-import 'package:flutter_resources/src/resources_generator.dart';
+import 'package:r_resources/r_resources.dart';
+import 'package:r_resources/src/class_gen/image_class_generator.dart';
+import 'package:r_resources/src/resources_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:flutter_resources/flutter_resources.dart';
 
 void main() {
   Builder builder;
 
   setUp(() {
-    builder = assetScannerBuilder(BuilderOptions.empty);
+    builder = rResourcesBuilder(BuilderOptions.empty);
   });
 
   test('Generates nothing if pubspec not specify assets strategy', () async {
