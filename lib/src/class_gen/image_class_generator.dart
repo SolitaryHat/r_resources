@@ -1,50 +1,44 @@
 import 'dart:async';
 
+import 'package:build/build.dart';
 import 'package:flutter_resources/src/class_gen/class_generator.dart';
 import 'package:flutter_resources/src/utils.dart';
 
-import 'package:meta/meta.dart' show required;
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' show absolute;
 
 class ImageClassGenerator implements ClassGenerator {
-  ImageClassGenerator({
-    @required List<String> assetPathList,
-  })  : assert(assetPathList != null),
-        _assetPathList = assetPathList;
+  ImageClassGenerator(this._assets);
 
-  final List<String> _assetPathList;
+  final List<AssetId> _assets;
 
   @override
   String get className => '_ImageResources';
 
   @override
   FutureOr<String> generate() {
-    final classBuffer = StringBuffer();
-    final imageAssets = _assetPathList.where(isImageAsset).toList();
+    final classBuffer = StringBuffer()
+      ..writeln('class $className {')
+      ..writeln('  const $className();');
+    final imageAssets = _assets.where(_isImageAsset).toList();
     if (imageAssets.isNotEmpty) {
-      classBuffer
-        ..writeln('class $className {')
-        ..writeln('  const $className();')
-        ..writeln();
-      for (final assetPath in imageAssets) {
-        final propertyName = assetPath.fileName.toValidPropertyName();
+      for (final asset in imageAssets) {
+        final propertyName = asset.fileName.toValidPropertyName();
 
         if (propertyName.isNotEmpty) {
+          final assetPath = asset.path;
           classBuffer
-            ..writeln('  /// ![](${path.absolute(assetPath)})') // preview
-            ..writeln('  final $propertyName = \'$assetPath\';')
-            ..writeln();
+            ..writeln()
+            ..writeln('  /// ![](${absolute(assetPath)})')
+            ..writeln('  final $propertyName = r\'$assetPath\';');
         }
       }
-
-      classBuffer.writeln('}');
     }
 
+    classBuffer.write('}');
     return classBuffer.toString();
   }
 
-  bool isImageAsset(String assetPath) {
-    final segments = assetPath.split('/');
-    return segments.contains('images');
+  bool _isImageAsset(AssetId asset) {
+    return asset.pathSegments.any((it) => it == 'images');
   }
 }

@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 100,
           height: 100,
           child: Image.asset(
-            R.images.ic_individual_schools,
+            '',//R.images.ic_individual_schools,
             fit: BoxFit.contain,
           ),
         ),

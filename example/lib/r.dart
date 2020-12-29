@@ -2,6 +2,13 @@
 
 // ignore_for_file: always_specify_types,lines_longer_than_80_chars,non_constant_identifier_names,prefer_double_quotes
 class R {
+  static final images = _ImageResources();
 }
 
+class _ImageResources {
+  const _ImageResources();
+
+  /// ![](/Users/nikitaivanov/Documents/projects/flutter_resources/example/assets/images/ic$individual$schools.png)
+  final ic_individual_schools = r'assets/images/ic$individual$schools.png';
+}
 

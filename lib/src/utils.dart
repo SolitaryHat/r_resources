@@ -1,3 +1,5 @@
+import 'package:build/build.dart';
+
 extension FlutterResourcesStringExt on String {
   String get fileName {
     return substring(
@@ -12,4 +14,8 @@ extension FlutterResourcesStringExt on String {
       (match) => '_',
     );
   }
+}
+
+extension FlutterResourcesAssetExt on AssetId {
+  String get fileName => pathSegments.last.fileName;
 }
