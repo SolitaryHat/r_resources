@@ -1,25 +1,25 @@
 import 'dart:async';
 
 import 'package:build/build.dart';
+import 'package:meta/meta.dart' show protected;
+import 'package:path/path.dart';
 import 'package:r_resources/src/class_gen/class_generator.dart';
 import 'package:r_resources/src/utils.dart';
 
-import 'package:path/path.dart' show absolute;
+abstract class AssetClassGenerator implements ClassGenerator {
 
-class SvgClassGenerator implements ClassGenerator {
-  SvgClassGenerator(this._assets);
+  @protected
+  String get assetFolderName;
 
-  final List<AssetId> _assets;
-
-  @override
-  String get className => '_SvgResources';
+  @protected
+  List<AssetId> get assets;
 
   @override
   FutureOr<String> generate() {
     final classBuffer = StringBuffer()
       ..writeln('class $className {')
       ..writeln('  const $className();');
-    final imageAssets = _assets.where(_isValidAsset).toList();
+    final imageAssets = assets.where(_isTargetAsset).toList();
     if (imageAssets.isNotEmpty) {
       for (final asset in imageAssets) {
         final propertyName = asset.fileName.toValidPropertyName();
@@ -38,7 +38,7 @@ class SvgClassGenerator implements ClassGenerator {
     return classBuffer.toString();
   }
 
-  bool _isValidAsset(AssetId asset) {
-    return asset.pathSegments.any((it) => it == 'svg');
-  }
+  bool _isTargetAsset(AssetId asset) => 
+    asset.pathSegments.any((it) => it == assetFolderName);
+
 }
