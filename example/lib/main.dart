@@ -1,6 +1,7 @@
-import 'package:example/r.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+
+import 'r.dart';
 
 void main() {
   runApp(MyApp());

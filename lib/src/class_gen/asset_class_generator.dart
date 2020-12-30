@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:build/build.dart';
 import 'package:meta/meta.dart' show protected;
 import 'package:path/path.dart';
-import 'package:r_resources/src/class_gen/class_generator.dart';
-import 'package:r_resources/src/utils.dart';
+
+import '../utils.dart';
+import 'class_generator.dart';
 
 abstract class AssetClassGenerator implements ClassGenerator {
 
