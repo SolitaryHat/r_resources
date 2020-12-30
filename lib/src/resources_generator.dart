@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:build/build.dart';
-import 'package:r_resources/src/class_gen/image_asset_class_generator.dart';
-import 'package:r_resources/src/class_gen/svg_asset_class_generator.dart';
-import 'package:r_resources/src/utils.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
-import 'package:yaml/yaml.dart';
 import 'package:path/path.dart' as path;
+import 'package:yaml/yaml.dart';
+
+import 'class_gen/image_asset_class_generator.dart';
+import 'class_gen/svg_asset_class_generator.dart';
+import 'utils.dart';
 
 const _defaultGeneratedClassPath = 'lib';
 const _defaultSourceFilesDirName = 'lib/';
@@ -21,6 +22,7 @@ const generatedFileHeader =
 
 @visibleForTesting
 const ignoreCommentForLinter = '// ignore_for_file: '
+    'avoid_classes_with_only_static_members,'
     'always_specify_types,'
     'lines_longer_than_80_chars,'
     'non_constant_identifier_names,'
