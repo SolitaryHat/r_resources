@@ -1,5 +1,5 @@
 name: r_resources
-description: Builder package for generating R-resources file.
+description: Builder package for generating R-resources file
 version: 0.0.1
 author: solitaryhat@yandex.ru
 homepage: https://github.com/SolitaryHat/r_resources
