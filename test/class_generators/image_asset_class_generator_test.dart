@@ -3,7 +3,7 @@ import 'package:r_resources/src/class_gen/image_asset_class_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart';
 
-void runImageAssetClassGeneratorTests() {
+void main() {
   group('ImageAssetClassGenerator tests', () {
     test('Empty images class for empty assets', () async {
       final generator = ImageAssetClassGenerator([]);
