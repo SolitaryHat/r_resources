@@ -1,6 +1,7 @@
 import 'package:build/build.dart';
 import 'package:meta/meta.dart' show protected;
-import 'package:r_resources/src/class_gen/asset_class_generator.dart';
+
+import 'asset_class_generator.dart';
 
 class ImageAssetClassGenerator extends AssetClassGenerator {
   ImageAssetClassGenerator(this._assets);

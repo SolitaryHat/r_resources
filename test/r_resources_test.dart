@@ -6,7 +6,7 @@ import 'package:r_resources/src/class_gen/svg_asset_class_generator.dart';
 import 'package:r_resources/src/resources_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'class_generators/image_asset_class_generator_test copy.dart';
+import 'class_generators/image_asset_class_generator_test.dart';
 import 'class_generators/svg_asset_class_generator_test.dart';
 
 void main() {
