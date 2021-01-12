@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 'Lorem Ipsum',
                 style: Theme.of(context).textTheme.headline4.copyWith(
-                      fontFamily: R.font.noto_sans_bold,
+                      fontFamily: R.fonts.noto_sans_bold,
                     ),
               ),
               SizedBox(height: 8),
