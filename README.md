@@ -9,7 +9,7 @@ Builder package for generating R-resources file.
 
 ☑ SVG graphics
 
-☐ Fonts
+☑ Fonts
 
 ☐ String resources
 
