@@ -54,7 +54,7 @@ void main() {
       );
     });
 
-    test('Replaces imvalid dart characters in file name', () async {
+    test('Replaces invalid dart characters in file name', () async {
       final generator = ImageAssetClassGenerator([
         AssetId('pkg', 'assets/images/ic@one.png'),
         AssetId('pkg', 'assets/images/ic\$two.png'),

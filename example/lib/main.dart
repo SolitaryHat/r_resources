@@ -38,27 +38,40 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 8),
-            Text('Image res:'),
-            Image.asset(
-              R.images.ic_individual_schools,
-              width: 100,
-              height: 100,
-              fit: BoxFit.contain,
-            ),
-            SizedBox(height: 8),
-            Text('SVG res:'),
-            SvgPicture.asset(
-              R.svg.filter,
-              width: 100,
-              height: 100,
-              fit: BoxFit.contain,
-              color: Colors.amber[500],
-            ),
-            SizedBox(height: 8),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 8),
+              Text('Image res:'),
+              Image.asset(
+                R.images.ic_individual_schools,
+                width: 100,
+                height: 100,
+                fit: BoxFit.contain,
+              ),
+              SizedBox(height: 8),
+              Text('SVG res:'),
+              SvgPicture.asset(
+                R.svg.filter,
+                width: 100,
+                height: 100,
+                fit: BoxFit.contain,
+                color: Colors.amber[500],
+              ),
+              SizedBox(height: 8),
+              Text('Font res:'),
+              SizedBox(height: 8),
+              Text(
+                'Lorem Ipsum',
+                style: Theme.of(context).textTheme.headline4.copyWith(
+                      fontFamily: R.fonts.noto_sans_bold,
+                    ),
+              ),
+              SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );

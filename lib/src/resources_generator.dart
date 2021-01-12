@@ -7,6 +7,7 @@ import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
+import 'class_gen/font_class_generator.dart';
 import 'class_gen/image_asset_class_generator.dart';
 import 'class_gen/svg_asset_class_generator.dart';
 import 'utils.dart';
@@ -130,6 +131,9 @@ class ResourcesBuilder implements Builder {
     final svgClassGenerator = SvgAssetClassGenerator(assets);
     final svgResourcesClass = await svgClassGenerator.generate();
 
+    final fontClassGenerator = FontClassGenerator(assets);
+    final fontResourcesClass = await fontClassGenerator.generate();
+
     final generatedFileContent = StringBuffer()
       ..writeln(generatedFileHeader)
       ..writeln()
@@ -144,6 +148,9 @@ class ResourcesBuilder implements Builder {
         )
         ..writeln(
           '  static final svg = ${svgClassGenerator.className}();',
+        )
+        ..writeln(
+          '  static final fonts = ${fontClassGenerator.className}();',
         );
     }
 
@@ -155,6 +162,10 @@ class ResourcesBuilder implements Builder {
 
     if (svgResourcesClass.isNotEmpty) {
       generatedFileContent..writeln()..writeln(svgResourcesClass);
+    }
+
+    if (fontResourcesClass.isNotEmpty) {
+      generatedFileContent..writeln()..writeln(fontResourcesClass);
     }
 
     return generatedFileContent.toString();
