@@ -9,10 +9,22 @@ extension FlutterResourcesStringExt on String {
   }
 
   String toValidPropertyName() {
-    return replaceAllMapped(
+    final validCharsString = replaceAllMapped(
       RegExp(r'[^_a-zA-Z0-9]+'),
       (match) => '_',
     );
+    final lowercased = validCharsString.split(RegExp(r"(?=(?!^)[A-Z])")).fold(
+      '',
+      (previousValue, element) {
+        var result = previousValue as String;
+        if (result.isNotEmpty && !result.endsWith('_')) {
+          result += '_';
+        }
+        result += element.toLowerCase();
+        return result;
+      },
+    );
+    return lowercased;
   }
 }
 
