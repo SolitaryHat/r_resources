@@ -1,0 +1,6 @@
+supported_locales:
+  - en_US
+  - en_GB
+  - ru
+
+fallback_locale: en_US

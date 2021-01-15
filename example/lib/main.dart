@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'r.dart';
+import 'r_copy.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,13 +12,32 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final defaultLocale = Locale('en', 'US');
+    final locales = [
+      defaultLocale,
+      Locale('en', 'GB'),
+      Locale('ru'),
+    ];
     return MaterialApp(
       title: 'Flutter Demo',
+      supportedLocales: locales,
+      localizationsDelegates: [
+        RStringsDelegate(
+          supportedLocales: locales,
+          fallbackLocale: defaultLocale,
+        ),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+      },
     );
   }
 }
@@ -69,6 +89,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontFamily: R.fonts.noto_sans_bold,
                     ),
               ),
+              SizedBox(height: 8),
+              Text('String res:'),
+              SizedBox(height: 8),
+              Text(R.stringsOf(context).label_lorem_ipsum),
+              Text(R.stringsOf(context).label_hello),
               SizedBox(height: 8),
             ],
           ),
