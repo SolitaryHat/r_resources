@@ -25,19 +25,93 @@ class StringsClassGenerator implements ClassGenerator {
 
   @override
   FutureOr<String> generate() {
+    final stringsClass = _generateStringsClass();
+    final delegateClass = _generateDelegateClass();
+    return '$stringsClass\n\n$delegateClass';
+  }
+
+  String _generateStringsClass() {
     final classBuffer = StringBuffer()
       ..writeln('class $className {')
-      ..writeln('  $className(this._locale, this._fallbackLocale);')
+      ..writeln('  $className(this._locale);')
       ..writeln()
-      ..writeln('  final Locale _locale;')
-      ..writeln('  final _fallbackLocale = '
+      ..writeln('  static const _fallbackLocale = '
           '${_createLocaleSourceCode(_fallbackLocale)};')
+      ..writeln('  final Locale _locale;')
       ..writeln()
       ..writeln('  static $className of(BuildContext context) {')
       ..writeln('    return Localizations.of<$className>(context, $className);')
       ..writeln('  }')
       ..writeln()
-      ..writeln();
+      ..writeln('  static const Map<String, Map<String, String>> '
+          '_localizedValues = {');
+
+    _localizationData.forEach((locale, localizedStrings) {
+      classBuffer.writeln('    \'$locale\': {');
+      localizedStrings.forEach((key, value) {
+        classBuffer.writeln('      \'$key\': r\'$value\',');
+      });
+      classBuffer.writeln('    },');
+    });
+
+    classBuffer
+      ..writeln('  };')
+      ..writeln()
+      ..writeln('  String _getString(String code) {')
+      ..writeln('    return _localizedValues[_locale.toString()][code] ??')
+      ..writeln('        _localizedValues[_fallbackLocale.toString()][code] ??')
+      ..writeln('        code;')
+      ..writeln('  }');
+
+    final fallbackLocaleTranslations = _localizationData[_fallbackLocale];
+    if (fallbackLocaleTranslations == null) {
+      throw Exception('Fallback translations not found');
+    }
+
+    fallbackLocaleTranslations.forEach((key, value) {
+      classBuffer
+        ..writeln()
+        ..writeln('  /// \'$value\'')
+        ..writeln('  String get $key => _getString(\'$key\');');
+    });
+
+    classBuffer.write('}');
+
+    return classBuffer.toString();
+  }
+
+  String _generateDelegateClass() {
+    final classBuffer = StringBuffer();
+    classBuffer
+      ..writeln(
+          'class RStringsDelegate extends LocalizationsDelegate<$className> {')
+      ..writeln('  const RStringsDelegate();')
+      ..writeln()
+      ..writeln('  static const supportedLocales = [');
+
+    for (final localeAsString in _supportedLocales) {
+      classBuffer.writeln('    ${_createLocaleSourceCode(localeAsString)},');
+    }
+
+    classBuffer
+      ..writeln('  ];')
+      ..writeln()
+      ..writeln('  static const fallbackLocale = '
+          '${_createLocaleSourceCode(_fallbackLocale)};')
+      ..writeln()
+      ..writeln('  @override')
+      ..writeln('  bool isSupported(Locale locale) => '
+          'supportedLocales.contains(locale);')
+      ..writeln()
+      ..writeln('  @override')
+      ..writeln('  Future<$className> load(Locale locale) async {')
+      ..writeln('    return $className(locale);')
+      ..writeln('  }')
+      ..writeln()
+      ..writeln('  @override')
+      ..writeln('  bool shouldReload(covariant '
+          'LocalizationsDelegate<_Strings> old) => false;')
+      ..write('}');
 
     return classBuffer.toString();
   }
@@ -46,77 +120,11 @@ class StringsClassGenerator implements ClassGenerator {
     final parts = localeName.split('_');
     switch (parts.length) {
       case 1:
-        return 'Locale(${parts[0]})';
+        return 'Locale(\'${parts[0]}\')';
       case 2:
-        return 'Locale(${parts[0]}, ${parts[1]})';
+        return 'Locale(\'${parts[0]}\', \'${parts[1]}\')';
       default:
-        throw Exception('Wrong locale name');
+        throw Exception('Wrong locale name ($localeName)');
     }
   }
 }
-
-/*
-class _Strings {
-  _Strings(this._locale, this._fallbackLocale);
-
-  final Locale _locale;
-  final Locale _fallbackLocale;
-
-  static _Strings of(BuildContext context) {
-    return Localizations.of<_Strings>(context, _Strings);
-  }
-
-  static const Map<String, Map<String, String>> _localizedValues = {
-    'en_US': {
-      'label_lorem_ipsum': r'Lorem ipsum',
-      'label_hello': r'Color',
-    },
-    'en_GB': {
-      'label_lorem_ipsum': r'Other lorem ipsum',
-      'label_hello': r'Colour',
-    },
-    'ru': {
-      'label_hello': r'Цвет',
-    },
-  };
-
-  String _getString(String code) {
-    return _localizedValues[_locale.toString()][code] ??
-        _localizedValues[_fallbackLocale.toString()][code] ??
-        code;
-  }
-
-  /// 'Lorem ipsum'
-  String get label_lorem_ipsum => _getString('label_lorem_ipsum');
-
-  String get label_hello => _getString('label_hello');
-}
-
-class RStringsDelegate extends LocalizationsDelegate<_Strings> {
-  const RStringsDelegate({
-    @required List<Locale> supportedLocales,
-    @required Locale fallbackLocale,
-  })  : assert(supportedLocales != null),
-        assert(fallbackLocale != null),
-        _supportedLocales = supportedLocales,
-        _fallbackLocale = fallbackLocale;
-
-  final List<Locale> _supportedLocales;
-  final Locale _fallbackLocale;
-
-  @override
-  bool isSupported(Locale locale) =>
-      _supportedLocales.contains(locale);
-
-  @override
-  Future<_Strings> load(Locale locale) async {
-      print(locale);
-      return _Strings(locale, _fallbackLocale);
-  }
-
-  @override
-  bool shouldReload(covariant LocalizationsDelegate<_Strings> old) => false;
-}
-
-
-*/

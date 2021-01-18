@@ -2,30 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'r_copy.dart';
+import 'r.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final defaultLocale = Locale('en', 'US');
-    final locales = [
-      defaultLocale,
-      Locale('en', 'GB'),
-      Locale('ru'),
-    ];
     return MaterialApp(
       title: 'Flutter Demo',
-      supportedLocales: locales,
+      supportedLocales: RStringsDelegate.supportedLocales,
       localizationsDelegates: [
-        RStringsDelegate(
-          supportedLocales: locales,
-          fallbackLocale: defaultLocale,
-        ),
+        RStringsDelegate(),
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -93,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('String res:'),
               SizedBox(height: 8),
               Text(R.stringsOf(context).label_lorem_ipsum),
-              Text(R.stringsOf(context).label_hello),
+              Text(R.stringsOf(context).label_color),
               SizedBox(height: 8),
             ],
           ),

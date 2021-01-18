@@ -6,6 +6,7 @@ import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
+import 'package:r_resources/src/class_gen/string_class_generator.dart';
 import 'package:yaml/yaml.dart';
 
 import 'class_gen/font_class_generator.dart';
@@ -149,13 +150,19 @@ class ResourcesBuilder implements Builder {
     final fontClassGenerator = FontClassGenerator(assets);
     final fontResourcesClass = await fontClassGenerator.generate();
 
-    final localizationData = await _readLocalizationFiles(buildStep, options);
-    log.info('localization = $localizationData');
+    final stringsClassGenerator = StringsClassGenerator(
+      localizationData: await _readLocalizationFiles(buildStep, options),
+      supportedLocales: options.supportedLocales,
+      fallbackLocale: options.fallbackLocale,
+    );
+    final stringResourcesClasses = await stringsClassGenerator.generate();
 
     final generatedFileContent = StringBuffer()
       ..writeln(generatedFileHeader)
       ..writeln()
       ..writeln(ignoreCommentForLinter)
+      ..writeln()
+      ..writeln('import \'package:flutter/material.dart\';')
       ..writeln()
       ..writeln('class R {')
       ..writeln(
@@ -167,13 +174,20 @@ class ResourcesBuilder implements Builder {
       ..writeln(
         '  static final fonts = ${fontClassGenerator.className}();',
       )
+      ..writeln(
+        '  static ${stringsClassGenerator.className} '
+        'stringsOf(BuildContext context) => '
+        '${stringsClassGenerator.className}.of(context);',
+      )
       ..writeln('}')
       ..writeln()
       ..writeln(imageResourcesClass)
       ..writeln()
       ..writeln(svgResourcesClass)
       ..writeln()
-      ..writeln(fontResourcesClass);
+      ..writeln(fontResourcesClass)
+      ..writeln()
+      ..writeln(stringResourcesClasses);
 
     return generatedFileContent.toString();
   }
@@ -229,7 +243,10 @@ class ResourcesBuilder implements Builder {
   ) async {
     final result = <String, Map<String, String>>{};
     for (final locale in options.supportedLocales) {
-      final assetId = AssetId(buildStep.inputId.package, 'assets/strings/$locale.json');
+      final assetId = AssetId(
+        buildStep.inputId.package,
+        'assets/strings/$locale.json',
+      );
       final fileContentAsString = await buildStep.readAsString(assetId);
       final Map<String, dynamic> decodedJson = jsonDecode(fileContentAsString);
       result[locale] = Map<String, String>.from(decodedJson);
