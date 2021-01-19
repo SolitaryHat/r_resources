@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'r.dart';
@@ -8,16 +9,25 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      supportedLocales: RStringsDelegate.supportedLocales,
+      localizationsDelegates: [
+        RStringsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+      },
     );
   }
 }
@@ -69,6 +79,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       fontFamily: R.fonts.noto_sans_bold,
                     ),
               ),
+              SizedBox(height: 8),
+              Text('String res:'),
+              SizedBox(height: 8),
+              Text(R.stringsOf(context).label_lorem_ipsum),
+              Text(R.stringsOf(context).label_color),
               SizedBox(height: 8),
             ],
           ),

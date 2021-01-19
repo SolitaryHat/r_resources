@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:build/build.dart';
@@ -9,12 +10,15 @@ import 'package:yaml/yaml.dart';
 
 import 'class_gen/font_class_generator.dart';
 import 'class_gen/image_asset_class_generator.dart';
+import 'class_gen/string_class_generator.dart';
 import 'class_gen/svg_asset_class_generator.dart';
 import 'utils.dart';
 
 const _defaultGeneratedClassPath = 'lib';
+const _defaultSupportedLocales = ['en'];
+const _defaultFallbackLocale = 'en';
 const _defaultSourceFilesDirName = 'lib/';
-const _optionsFileName = 'flutter_resources_options.yaml';
+const _optionsFileName = 'r_options.yaml';
 const _pubspecFileName = 'pubspec.yaml';
 
 @visibleForTesting
@@ -32,17 +36,29 @@ const ignoreCommentForLinter = '// ignore_for_file: '
 class _GeneratorOptions {
   const _GeneratorOptions._({
     this.path = _defaultGeneratedClassPath,
+    this.supportedLocales = _defaultSupportedLocales,
+    this.fallbackLocale = _defaultFallbackLocale,
   });
 
   factory _GeneratorOptions() => const _GeneratorOptions._();
 
   factory _GeneratorOptions.fromYamlMap(YamlMap yamlMap) {
+    final path = yamlMap['path'] as String;
+    final supportedLocalesYamlList = yamlMap['supported_locales'] as YamlList;
+    final supportedLocales = supportedLocalesYamlList == null
+        ? null
+        : List<String>.from(supportedLocalesYamlList);
+    final fallbackLocale = yamlMap['fallback_locale'] as String;
     return _GeneratorOptions._(
-      path: yamlMap['path'] as String ?? _defaultGeneratedClassPath,
+      path: path ?? _defaultGeneratedClassPath,
+      supportedLocales: supportedLocales ?? _defaultSupportedLocales,
+      fallbackLocale: fallbackLocale ?? _defaultFallbackLocale,
     );
   }
 
   final String path;
+  final List<String> supportedLocales;
+  final String fallbackLocale;
 
   bool get isPathCorrect =>
       path == _defaultGeneratedClassPath ||
@@ -134,39 +150,44 @@ class ResourcesBuilder implements Builder {
     final fontClassGenerator = FontClassGenerator(assets);
     final fontResourcesClass = await fontClassGenerator.generate();
 
+    final stringsClassGenerator = StringsClassGenerator(
+      localizationData: await _readLocalizationFiles(buildStep, options),
+      supportedLocales: options.supportedLocales,
+      fallbackLocale: options.fallbackLocale,
+    );
+    final stringResourcesClasses = await stringsClassGenerator.generate();
+
     final generatedFileContent = StringBuffer()
       ..writeln(generatedFileHeader)
       ..writeln()
       ..writeln(ignoreCommentForLinter)
       ..writeln()
-      ..writeln('class R {');
-
-    if (imageResourcesClass.isNotEmpty) {
-      generatedFileContent
-        ..writeln(
-          '  static final images = ${imagesClassGenerator.className}();',
-        )
-        ..writeln(
-          '  static final svg = ${svgClassGenerator.className}();',
-        )
-        ..writeln(
-          '  static final fonts = ${fontClassGenerator.className}();',
-        );
-    }
-
-    generatedFileContent.writeln('}');
-
-    if (imageResourcesClass.isNotEmpty) {
-      generatedFileContent..writeln()..writeln(imageResourcesClass);
-    }
-
-    if (svgResourcesClass.isNotEmpty) {
-      generatedFileContent..writeln()..writeln(svgResourcesClass);
-    }
-
-    if (fontResourcesClass.isNotEmpty) {
-      generatedFileContent..writeln()..writeln(fontResourcesClass);
-    }
+      ..writeln('import \'package:flutter/material.dart\';')
+      ..writeln()
+      ..writeln('class R {')
+      ..writeln(
+        '  static final images = ${imagesClassGenerator.className}();',
+      )
+      ..writeln(
+        '  static final svg = ${svgClassGenerator.className}();',
+      )
+      ..writeln(
+        '  static final fonts = ${fontClassGenerator.className}();',
+      )
+      ..writeln(
+        '  static ${stringsClassGenerator.className} '
+        'stringsOf(BuildContext context) => '
+        '${stringsClassGenerator.className}.of(context);',
+      )
+      ..writeln('}')
+      ..writeln()
+      ..writeln(imageResourcesClass)
+      ..writeln()
+      ..writeln(svgResourcesClass)
+      ..writeln()
+      ..writeln(fontResourcesClass)
+      ..writeln()
+      ..writeln(stringResourcesClasses);
 
     return generatedFileContent.toString();
   }
@@ -214,5 +235,22 @@ class ResourcesBuilder implements Builder {
     }
 
     return {};
+  }
+
+  Future<Map<String, Map<String, String>>> _readLocalizationFiles(
+    BuildStep buildStep,
+    _GeneratorOptions options,
+  ) async {
+    final result = <String, Map<String, String>>{};
+    for (final locale in options.supportedLocales) {
+      final assetId = AssetId(
+        buildStep.inputId.package,
+        'assets/strings/$locale.json',
+      );
+      final fileContentAsString = await buildStep.readAsString(assetId);
+      final Map<String, dynamic> decodedJson = jsonDecode(fileContentAsString);
+      result[locale] = Map<String, String>.from(decodedJson);
+    }
+    return result;
   }
 }
