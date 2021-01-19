@@ -6,11 +6,11 @@ import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
-import 'package:r_resources/src/class_gen/string_class_generator.dart';
 import 'package:yaml/yaml.dart';
 
 import 'class_gen/font_class_generator.dart';
 import 'class_gen/image_asset_class_generator.dart';
+import 'class_gen/string_class_generator.dart';
 import 'class_gen/svg_asset_class_generator.dart';
 import 'utils.dart';
 
