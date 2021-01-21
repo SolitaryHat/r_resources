@@ -33,7 +33,7 @@ class StringsClassGenerator implements ClassGenerator {
   String _generateStringsClass() {
     final classBuffer = StringBuffer()
       ..writeln('class $className {')
-      ..writeln('  $className(this._locale);')
+      ..writeln('  const $className(this._locale);')
       ..writeln()
       ..writeln('  static const _fallbackLocale = '
           '${_createLocaleSourceCode(_fallbackLocale)};')
