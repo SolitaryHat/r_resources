@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart' show required;
+import 'package:meta/meta.dart' show required, visibleForTesting;
 
 import 'class_generator.dart';
 
@@ -33,7 +33,7 @@ class StringsClassGenerator implements ClassGenerator {
   String _generateStringsClass() {
     final classBuffer = StringBuffer()
       ..writeln('class $className {')
-      ..writeln('  $className(this._locale);')
+      ..writeln('  const $className(this._locale);')
       ..writeln()
       ..writeln('  static const _fallbackLocale = '
           '${_createLocaleSourceCode(_fallbackLocale)};')
@@ -72,12 +72,52 @@ class StringsClassGenerator implements ClassGenerator {
       classBuffer
         ..writeln()
         ..writeln('  /// \'$value\'')
-        ..writeln('  String get $key => _getString(\'$key\');');
+        ..writeln('${createGetterForTranslation(key, value)}');
     });
 
     classBuffer.write('}');
 
     return classBuffer.toString();
+  }
+
+  @visibleForTesting
+  String createGetterForTranslation(
+    String translationKey,
+    String rawTranslationValue,
+  ) {
+    final stringFormatRegexp = RegExp(r'\$\{([^}]+)\}');
+    final stringFormatMatches =
+        stringFormatRegexp.allMatches(rawTranslationValue);
+
+    if (stringFormatMatches.isEmpty) {
+      return '  String get $translationKey => '
+          '_getString(\'$translationKey\');';
+    }
+
+    final formatParams = <String, String>{};
+    for (final match in stringFormatMatches) {
+      final fullMatch = match.group(0);
+      final groupMatch = match.group(1);
+      formatParams[fullMatch] = groupMatch;
+    }
+
+    final getterBuffer = StringBuffer()..writeln('  String $translationKey({');
+    formatParams.forEach((fullMatch, paramName) {
+      getterBuffer.writeln('    Object $paramName,');
+    });
+    getterBuffer
+      ..writeln('  }) {')
+      ..writeln('    final rawString = _getString(\'$translationKey\');')
+      ..write('    return rawString');
+    formatParams.forEach((fullMatch, paramName) {
+      getterBuffer.write(
+        '\n        .replaceAll'
+        '(r\'$fullMatch\', $paramName.toString())',
+      );
+    });
+    getterBuffer..writeln(';')..write('  }');
+
+    return getterBuffer.toString();
   }
 
   String _generateDelegateClass() {

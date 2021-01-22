@@ -1,4 +1,5 @@
 {
     "label_lorem_ipsum": "Lorem ipsum",
-    "label_color": "Color"
+    "label_color": "Color",
+    "format_example": "Your object is ${object} and other is ${other}"
 }
