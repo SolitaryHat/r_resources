@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  build: ^1.6.0
+  build: ^1.6.1
   path: ^1.7.0
   glob: ^1.2.0
   yaml: ^2.2.1
