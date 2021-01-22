@@ -1,3 +1,4 @@
 {
-    "label_color": "Цвет"
+    "label_color": "Цвет",
+    "format_example": "Ты передал object = ${object}"
 }
