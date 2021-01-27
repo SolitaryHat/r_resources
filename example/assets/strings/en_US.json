@@ -1,5 +1,6 @@
 {
     "label_lorem_ipsum": "Lorem ipsum",
     "label_color": "Color",
-    "format_example": "Your object is ${object} and other is ${other}"
+    "format_example": "Your object is ${object} and other is ${other}",
+    "label_with_newline": "HELLO!\nI'm new line symbol (\\n)"
 }

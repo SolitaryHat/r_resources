@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 8),
             Text(
               'Lorem Ipsum',
-              style: Theme.of(context).textTheme.headline4.copyWith(
+              style: Theme.of(context).textTheme.bodyText1.copyWith(
                     fontFamily: R.fonts.noto_sans_bold,
                   ),
             ),
@@ -90,6 +90,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     object: 12345,
                     other: 'OTHER',
                   ),
+            ),
+            SizedBox(height: 8),
+            Text('String res with special characters:'),
+            Text(
+              R.stringsOf(context).label_with_newline,
             ),
             SizedBox(height: 8),
           ],

@@ -9,7 +9,8 @@ void main() {
           'en_US': {
             'label_lorem_ipsum': 'Lorem ipsum',
             'label_color': 'Color',
-            'format_example': r'Your object is ${object} and other is ${other}'
+            'format_example': r'Your object is ${object} and other is ${other}',
+            'label_with_newline': "HELLO!\nI'm new line symbol (\\n)"
           },
           'en_GB': {
             'label_lorem_ipsum': 'Lorem ipsum GB',
@@ -37,17 +38,18 @@ void main() {
 
   static const Map<String, Map<String, String>> _localizedValues = {
     'en_US': {
-      'label_lorem_ipsum': r'Lorem ipsum',
-      'label_color': r'Color',
-      'format_example': r'Your object is \${object} and other is \${other}',
+      'label_lorem_ipsum': 'Lorem ipsum',
+      'label_color': 'Color',
+      'format_example': 'Your object is \\\${object} and other is \\\${other}',
+      'label_with_newline': 'HELLO!\\nI\\'m new line symbol (\\\\n)',
     },
     'en_GB': {
-      'label_lorem_ipsum': r'Lorem ipsum GB',
-      'label_color': r'Colour',
+      'label_lorem_ipsum': 'Lorem ipsum GB',
+      'label_color': 'Colour',
     },
     'ru': {
-      'label_color': r'Цвет',
-      'format_example': r'Ты передал object = \${object}',
+      'label_color': 'Цвет',
+      'format_example': 'Ты передал object = \\\${object}',
     },
   };
 
@@ -63,7 +65,7 @@ void main() {
   /// 'Color'
   String get label_color => _getString('label_color');
 
-  /// 'Your object is \${object} and other is \${other}'
+  /// 'Your object is \\\${object} and other is \\\${other}'
   String format_example({
     Object object,
     Object other,
@@ -73,6 +75,9 @@ void main() {
         .replaceAll(r'\${object}', object.toString())
         .replaceAll(r'\${other}', other.toString());
   }
+
+  /// 'HELLO!\\nI\\\'m new line symbol (\\\\n)'
+  String get label_with_newline => _getString('label_with_newline');
 }
 
 class RStringsDelegate extends LocalizationsDelegate<${generator.className}> {
