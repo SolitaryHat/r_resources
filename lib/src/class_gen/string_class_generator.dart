@@ -49,7 +49,9 @@ class StringsClassGenerator implements ClassGenerator {
     _localizationData.forEach((locale, localizedStrings) {
       classBuffer.writeln('    \'$locale\': {');
       localizedStrings.forEach((key, value) {
-        classBuffer.writeln('      \'$key\': r\'$value\',');
+        classBuffer.writeln(
+          '      \'$key\': \'${_replaceDartCharactersInString(value)}\',',
+        );
       });
       classBuffer.writeln('    },');
     });
@@ -71,13 +73,21 @@ class StringsClassGenerator implements ClassGenerator {
     fallbackLocaleTranslations.forEach((key, value) {
       classBuffer
         ..writeln()
-        ..writeln('  /// \'$value\'')
+        ..writeln('  /// \'${_replaceDartCharactersInString(value)}\'')
         ..writeln('${createGetterForTranslation(key, value)}');
     });
 
     classBuffer.write('}');
 
     return classBuffer.toString();
+  }
+
+  String _replaceDartCharactersInString(String string) {
+    return string
+        .replaceAll('\\', '\\\\')
+        .replaceAll('\n', '\\n')
+        .replaceAll('\'', '\\\'')
+        .replaceAll('\$', '\\\$');
   }
 
   @visibleForTesting
@@ -115,7 +125,9 @@ class StringsClassGenerator implements ClassGenerator {
         '(r\'$fullMatch\', $paramName.toString())',
       );
     });
-    getterBuffer..writeln(';')..write('  }');
+    getterBuffer
+      ..writeln(';')
+      ..write('  }');
 
     return getterBuffer.toString();
   }
