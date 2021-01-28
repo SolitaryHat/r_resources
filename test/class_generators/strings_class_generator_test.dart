@@ -27,10 +27,10 @@ void main() {
       expect(
         await generator.generate(),
         '''class ${generator.className} {
-  const ${generator.className}(this._locale);
+  const ${generator.className}(this.locale);
 
   static const _fallbackLocale = Locale('en', 'US');
-  final Locale _locale;
+  final Locale locale;
 
   static ${generator.className} of(BuildContext context) {
     return Localizations.of<${generator.className}>(context, ${generator.className});
@@ -54,7 +54,7 @@ void main() {
   };
 
   String _getString(String code) {
-    return _localizedValues[_locale.toString()][code] ??
+    return _localizedValues[locale.toString()][code] ??
         _localizedValues[_fallbackLocale.toString()][code] ??
         code;
   }
