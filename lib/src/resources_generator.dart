@@ -32,7 +32,8 @@ const ignoreCommentForLinter = '// ignore_for_file: '
     'lines_longer_than_80_chars,'
     'non_constant_identifier_names,'
     'prefer_double_quotes,'
-    'unnecessary_raw_strings';
+    'unnecessary_raw_strings,'
+    'use_raw_strings';
 
 class _GeneratorOptions {
   const _GeneratorOptions._({
