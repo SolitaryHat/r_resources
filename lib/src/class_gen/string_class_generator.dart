@@ -33,11 +33,11 @@ class StringsClassGenerator implements ClassGenerator {
   String _generateStringsClass() {
     final classBuffer = StringBuffer()
       ..writeln('class $className {')
-      ..writeln('  const $className(this._locale);')
+      ..writeln('  const $className(this.locale);')
       ..writeln()
       ..writeln('  static const _fallbackLocale = '
           '${_createLocaleSourceCode(_fallbackLocale)};')
-      ..writeln('  final Locale _locale;')
+      ..writeln('  final Locale locale;')
       ..writeln()
       ..writeln('  static $className of(BuildContext context) {')
       ..writeln('    return Localizations.of<$className>(context, $className);')
@@ -60,7 +60,7 @@ class StringsClassGenerator implements ClassGenerator {
       ..writeln('  };')
       ..writeln()
       ..writeln('  String _getString(String code) {')
-      ..writeln('    return _localizedValues[_locale.toString()][code] ??')
+      ..writeln('    return _localizedValues[locale.toString()][code] ??')
       ..writeln('        _localizedValues[_fallbackLocale.toString()][code] ??')
       ..writeln('        code;')
       ..writeln('  }');
