@@ -1,18 +1,15 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart' show required, visibleForTesting;
+import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'class_generator.dart';
 
 class StringsClassGenerator implements ClassGenerator {
   const StringsClassGenerator({
-    @required Map<String, Map<String, String>> localizationData,
-    @required List<String> supportedLocales,
-    @required String fallbackLocale,
-  })  : assert(localizationData != null),
-        assert(supportedLocales != null),
-        assert(fallbackLocale != null),
-        _localizationData = localizationData,
+    required Map<String, Map<String, String>> localizationData,
+    required List<String> supportedLocales,
+    required String fallbackLocale,
+  })   : _localizationData = localizationData,
         _supportedLocales = supportedLocales,
         _fallbackLocale = fallbackLocale;
 
@@ -40,7 +37,9 @@ class StringsClassGenerator implements ClassGenerator {
       ..writeln('  final Locale locale;')
       ..writeln()
       ..writeln('  static $className of(BuildContext context) {')
-      ..writeln('    return Localizations.of<$className>(context, $className);')
+      ..writeln(
+        '    return Localizations.of<$className>(context, $className)!;',
+      )
       ..writeln('  }')
       ..writeln()
       ..writeln('  static const Map<String, Map<String, String>> '
@@ -60,8 +59,10 @@ class StringsClassGenerator implements ClassGenerator {
       ..writeln('  };')
       ..writeln()
       ..writeln('  String _getString(String code) {')
-      ..writeln('    return _localizedValues[locale.toString()][code] ??')
-      ..writeln('        _localizedValues[_fallbackLocale.toString()][code] ??')
+      ..writeln('    return _localizedValues[locale.toString()]?[code] ??')
+      ..writeln(
+        '        _localizedValues[_fallbackLocale.toString()]?[code] ??',
+      )
       ..writeln('        code;')
       ..writeln('  }');
 
@@ -106,14 +107,14 @@ class StringsClassGenerator implements ClassGenerator {
 
     final formatParams = <String, String>{};
     for (final match in stringFormatMatches) {
-      final fullMatch = match.group(0);
-      final groupMatch = match.group(1);
+      final fullMatch = match.group(0)!;
+      final groupMatch = match.group(1)!;
       formatParams[fullMatch] = groupMatch;
     }
 
     final getterBuffer = StringBuffer()..writeln('  String $translationKey({');
     formatParams.forEach((fullMatch, paramName) {
-      getterBuffer.writeln('    Object $paramName,');
+      getterBuffer.writeln('    required Object $paramName,');
     });
     getterBuffer
       ..writeln('  }) {')

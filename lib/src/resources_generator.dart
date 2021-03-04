@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
@@ -45,12 +46,12 @@ class _GeneratorOptions {
   factory _GeneratorOptions() => const _GeneratorOptions._();
 
   factory _GeneratorOptions.fromYamlMap(YamlMap yamlMap) {
-    final path = yamlMap['path'] as String;
-    final supportedLocalesYamlList = yamlMap['supported_locales'] as YamlList;
+    final path = yamlMap['path'] as String?;
+    final supportedLocalesYamlList = yamlMap['supported_locales'] as YamlList?;
     final supportedLocales = supportedLocalesYamlList == null
         ? null
         : List<String>.from(supportedLocalesYamlList);
-    final fallbackLocale = yamlMap['fallback_locale'] as String;
+    final fallbackLocale = yamlMap['fallback_locale'] as String?;
     return _GeneratorOptions._(
       path: path ?? _defaultGeneratedClassPath,
       supportedLocales: supportedLocales ?? _defaultSupportedLocales,
@@ -83,7 +84,7 @@ class ResourcesBuilder implements Builder {
 
     final rClass = await _generateRFileContent(
       buildStep,
-      pubspecYamlMap,
+      pubspecYamlMap!,
       options,
     );
     if (rClass.isEmpty) return;
@@ -117,7 +118,7 @@ class ResourcesBuilder implements Builder {
 
     if (optionsFile.existsSync()) {
       final optionsAsString = optionsFile.readAsStringSync();
-      if (optionsAsString?.isNotEmpty ?? false) {
+      if (optionsAsString.isNotEmpty) {
         return _GeneratorOptions.fromYamlMap(
           loadYaml(optionsAsString) as YamlMap,
         );
@@ -127,10 +128,10 @@ class ResourcesBuilder implements Builder {
     return _GeneratorOptions();
   }
 
-  Future<YamlMap> _createPubspecYampMap(BuildStep buildStep) async {
+  Future<YamlMap?> _createPubspecYampMap(BuildStep buildStep) async {
     final pubspecAssetId = AssetId(buildStep.inputId.package, _pubspecFileName);
     final pubspecAsString = await buildStep.readAsString(pubspecAssetId);
-    return loadYaml(pubspecAsString) as YamlMap;
+    return loadYaml(pubspecAsString) as YamlMap?;
   }
 
   Future<String> _generateRFileContent(
