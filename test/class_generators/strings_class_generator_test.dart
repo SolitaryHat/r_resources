@@ -33,7 +33,7 @@ void main() {
   final Locale locale;
 
   static ${generator.className} of(BuildContext context) {
-    return Localizations.of<${generator.className}>(context, ${generator.className});
+    return Localizations.of<${generator.className}>(context, ${generator.className})!;
   }
 
   static const Map<String, Map<String, String>> _localizedValues = {
@@ -54,8 +54,8 @@ void main() {
   };
 
   String _getString(String code) {
-    return _localizedValues[locale.toString()][code] ??
-        _localizedValues[_fallbackLocale.toString()][code] ??
+    return _localizedValues[locale.toString()]?[code] ??
+        _localizedValues[_fallbackLocale.toString()]?[code] ??
         code;
   }
 
@@ -67,8 +67,8 @@ void main() {
 
   /// 'Your object is \\\${object} and other is \\\${other}'
   String format_example({
-    Object object,
-    Object other,
+    required Object object,
+    required Object other,
   }) {
     final rawString = _getString('format_example');
     return rawString
@@ -134,8 +134,8 @@ class RStringsDelegate extends LocalizationsDelegate<${generator.className}> {
           r'Your object is ${object} and other is ${other}',
         ),
         r'''  String format_example({
-    Object object,
-    Object other,
+    required Object object,
+    required Object other,
   }) {
     final rawString = _getString('format_example');
     return rawString

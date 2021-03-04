@@ -11,7 +11,7 @@ Builder package for generating R-resources file.
 
 ☑ Fonts
 
-☐ String resources
+☑ String resources
 
 ☐ Text styles
 
