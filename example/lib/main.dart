@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 8),
             Text(
               'Lorem Ipsum',
-              style: Theme.of(context).textTheme.bodyText1.copyWith(
+              style: Theme.of(context).textTheme.bodyText1!.copyWith(
                     fontFamily: R.fonts.noto_sans_bold,
                   ),
             ),

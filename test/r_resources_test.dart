@@ -1,6 +1,8 @@
 import 'dart:io';
 
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:build_test/build_test.dart';
 import 'package:r_resources/r_resources.dart';
 import 'package:r_resources/src/class_gen/font_class_generator.dart';
@@ -11,7 +13,7 @@ import 'package:r_resources/src/resources_generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Builder builder;
+  late Builder builder;
 
   setUp(() {
     builder = rResourcesBuilder(BuilderOptions.empty);
