@@ -1,4 +1,3 @@
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
 
 extension FlutterResourcesStringExt on String {
@@ -14,7 +13,7 @@ extension FlutterResourcesStringExt on String {
       RegExp(r'[^_a-zA-Z0-9]+'),
       (match) => '_',
     );
-    final lowercased = validCharsString.split(RegExp(r"(?=(?!^)[A-Z])")).fold(
+    final lowerCased = validCharsString.split(RegExp(r"(?=(?!^)[A-Z])")).fold(
       '',
       (previousValue, element) {
         var result = previousValue as String;
@@ -25,7 +24,7 @@ extension FlutterResourcesStringExt on String {
         return result;
       },
     );
-    return lowercased;
+    return lowerCased;
   }
 }
 

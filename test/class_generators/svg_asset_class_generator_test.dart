@@ -1,4 +1,3 @@
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
 import 'package:r_resources/src/class_gen/svg_asset_class_generator.dart';
 import 'package:flutter_test/flutter_test.dart';

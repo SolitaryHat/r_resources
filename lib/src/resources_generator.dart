@@ -2,14 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
 import 'package:glob/glob.dart';
 import 'package:meta/meta.dart' show visibleForTesting;
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
-import 'class_gen/font_class_generator.dart';
 import 'class_gen/image_asset_class_generator.dart';
 import 'class_gen/string_class_generator.dart';
 import 'class_gen/svg_asset_class_generator.dart';
@@ -38,15 +36,22 @@ const ignoreCommentForLinter = '// ignore_for_file: '
 
 class _GeneratorOptions {
   const _GeneratorOptions._({
-    this.path = _defaultGeneratedClassPath,
-    this.supportedLocales = _defaultSupportedLocales,
-    this.fallbackLocale = _defaultFallbackLocale,
+    required this.path,
+    required this.supportedLocales,
+    required this.fallbackLocale,
+    required this.isStringsGenEnabled,
   });
 
-  factory _GeneratorOptions() => const _GeneratorOptions._();
+  factory _GeneratorOptions() => const _GeneratorOptions._(
+        path: _defaultGeneratedClassPath,
+        supportedLocales: _defaultSupportedLocales,
+        fallbackLocale: _defaultFallbackLocale,
+        isStringsGenEnabled: false,
+      );
 
   factory _GeneratorOptions.fromYamlMap(YamlMap yamlMap) {
     final path = yamlMap['path'] as String?;
+    final isStringsGenEnabled = yamlMap['generate_strings'] as bool?;
     final supportedLocalesYamlList = yamlMap['supported_locales'] as YamlList?;
     final supportedLocales = supportedLocalesYamlList == null
         ? null
@@ -56,12 +61,14 @@ class _GeneratorOptions {
       path: path ?? _defaultGeneratedClassPath,
       supportedLocales: supportedLocales ?? _defaultSupportedLocales,
       fallbackLocale: fallbackLocale ?? _defaultFallbackLocale,
+      isStringsGenEnabled: isStringsGenEnabled ?? false,
     );
   }
 
   final String path;
   final List<String> supportedLocales;
   final String fallbackLocale;
+  final bool isStringsGenEnabled;
 
   bool get isPathCorrect =>
       path == _defaultGeneratedClassPath ||
@@ -71,20 +78,20 @@ class _GeneratorOptions {
 class ResourcesBuilder implements Builder {
   @override
   FutureOr<void> build(BuildStep buildStep) async {
-    final pubspecYamlMap = await _createPubspecYampMap(buildStep);
-    if (pubspecYamlMap?.isEmpty ?? true) return;
+    final pubSpecYamlMap = await _createPubSpecYampMap(buildStep);
+    if (pubSpecYamlMap?.isEmpty ?? true) return;
 
     final options = _generatorOptions;
     if (!options.isPathCorrect) {
       log.severe(
-        'Overriden path from $_optionsFileName should start with "lib/"',
+        'path from $_optionsFileName should start with "lib/"',
       );
       return;
     }
 
     final rClass = await _generateRFileContent(
       buildStep,
-      pubspecYamlMap!,
+      pubSpecYamlMap!,
       options,
     );
     if (rClass.isEmpty) return;
@@ -128,20 +135,20 @@ class ResourcesBuilder implements Builder {
     return _GeneratorOptions();
   }
 
-  Future<YamlMap?> _createPubspecYampMap(BuildStep buildStep) async {
-    final pubspecAssetId = AssetId(buildStep.inputId.package, _pubspecFileName);
-    final pubspecAsString = await buildStep.readAsString(pubspecAssetId);
-    return loadYaml(pubspecAsString) as YamlMap?;
+  Future<YamlMap?> _createPubSpecYampMap(BuildStep buildStep) async {
+    final pubSpecAssetId = AssetId(buildStep.inputId.package, _pubspecFileName);
+    final pubSpecAsString = await buildStep.readAsString(pubSpecAssetId);
+    return loadYaml(pubSpecAsString) as YamlMap?;
   }
 
   Future<String> _generateRFileContent(
     BuildStep buildStep,
-    YamlMap pubspecYamlMap,
+    YamlMap pubSpecYamlMap,
     _GeneratorOptions options,
   ) async {
-    final assets = await _getAssetsFromPubspec(
+    final assets = await _getAssetsFromPubSpec(
       buildStep,
-      pubspecYamlMap,
+      pubSpecYamlMap,
     );
 
     final imagesClassGenerator = ImageAssetClassGenerator(assets);
@@ -150,22 +157,29 @@ class ResourcesBuilder implements Builder {
     final svgClassGenerator = SvgAssetClassGenerator(assets);
     final svgResourcesClass = await svgClassGenerator.generate();
 
-    final fontClassGenerator = FontClassGenerator(assets);
-    final fontResourcesClass = await fontClassGenerator.generate();
+    late StringsClassGenerator stringsClassGenerator;
+    late String stringResourcesClasses;
 
-    final stringsClassGenerator = StringsClassGenerator(
-      localizationData: await _readLocalizationFiles(buildStep, options),
-      supportedLocales: options.supportedLocales,
-      fallbackLocale: options.fallbackLocale,
-    );
-    final stringResourcesClasses = await stringsClassGenerator.generate();
+    if (options.isStringsGenEnabled) {
+      stringsClassGenerator = StringsClassGenerator(
+        localizationData: await _readLocalizationFiles(buildStep, options),
+        supportedLocales: options.supportedLocales,
+        fallbackLocale: options.fallbackLocale,
+      );
+      stringResourcesClasses = await stringsClassGenerator.generate();
+    }
 
     final generatedFileContent = StringBuffer()
       ..writeln(generatedFileHeader)
       ..writeln()
       ..writeln(ignoreCommentForLinter)
-      ..writeln()
-      ..writeln('import \'package:flutter/material.dart\';')
+      ..writeln();
+
+    if (options.isStringsGenEnabled) {
+      generatedFileContent.writeln('import \'package:flutter/material.dart\';');
+    }
+
+    generatedFileContent
       ..writeln()
       ..writeln('class R {')
       ..writeln(
@@ -173,33 +187,35 @@ class ResourcesBuilder implements Builder {
       )
       ..writeln(
         '  static const svg = ${svgClassGenerator.className}();',
-      )
-      ..writeln(
-        '  static const fonts = ${fontClassGenerator.className}();',
-      )
-      ..writeln(
+      );
+
+    if (options.isStringsGenEnabled) {
+      generatedFileContent.writeln(
         '  static ${stringsClassGenerator.className} '
         'stringsOf(BuildContext context) => '
         '${stringsClassGenerator.className}.of(context);',
-      )
+      );
+    }
+
+    generatedFileContent
       ..writeln('}')
       ..writeln()
       ..writeln(imageResourcesClass)
       ..writeln()
-      ..writeln(svgResourcesClass)
-      ..writeln()
-      ..writeln(fontResourcesClass)
-      ..writeln()
-      ..writeln(stringResourcesClasses);
+      ..writeln(svgResourcesClass);
+
+    if (options.isStringsGenEnabled) {
+      generatedFileContent..writeln()..writeln(stringResourcesClasses);
+    }
 
     return generatedFileContent.toString();
   }
 
-  Future<List<AssetId>> _getAssetsFromPubspec(
+  Future<List<AssetId>> _getAssetsFromPubSpec(
     BuildStep buildStep,
-    YamlMap pubspecYamlMap,
+    YamlMap pubSpecYamlMap,
   ) async {
-    final globList = _getUniqueAssetsGlobsFromPubspec(pubspecYamlMap);
+    final globList = _getUniqueAssetsGlobsFromPubSpec(pubSpecYamlMap);
     final assetsSet = <AssetId>{};
 
     for (final glob in globList) {
@@ -215,9 +231,9 @@ class ResourcesBuilder implements Builder {
     return assetsSet.toList();
   }
 
-  Set<Glob> _getUniqueAssetsGlobsFromPubspec(YamlMap pubspecYamlMap) {
+  Set<Glob> _getUniqueAssetsGlobsFromPubSpec(YamlMap pubSpecYamlMap) {
     final globList = <Glob>{};
-    for (final asset in _getUniqueAssetsPathsFromPubspec(pubspecYamlMap)) {
+    for (final asset in _getUniqueAssetsPathsFromPubSpec(pubSpecYamlMap)) {
       if (asset.endsWith('/')) {
         globList.add(Glob('$asset*'));
       } else {
@@ -228,9 +244,9 @@ class ResourcesBuilder implements Builder {
     return globList;
   }
 
-  Set<String> _getUniqueAssetsPathsFromPubspec(YamlMap pubspecYamlMap) {
-    if (pubspecYamlMap.containsKey('flutter')) {
-      final dynamic flutterMap = pubspecYamlMap['flutter'];
+  Set<String> _getUniqueAssetsPathsFromPubSpec(YamlMap pubSpecYamlMap) {
+    if (pubSpecYamlMap.containsKey('flutter')) {
+      final dynamic flutterMap = pubSpecYamlMap['flutter'];
       if (flutterMap is YamlMap && flutterMap.containsKey('assets')) {
         final assetsList = flutterMap['assets'] as YamlList;
         return Set.from(assetsList);

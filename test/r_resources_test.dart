@@ -1,11 +1,8 @@
 import 'dart:io';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build_test/build_test.dart';
 import 'package:r_resources/r_resources.dart';
-import 'package:r_resources/src/class_gen/font_class_generator.dart';
 import 'package:r_resources/src/class_gen/image_asset_class_generator.dart';
 import 'package:r_resources/src/class_gen/string_class_generator.dart';
 import 'package:r_resources/src/class_gen/svg_asset_class_generator.dart';
@@ -23,7 +20,6 @@ void main() {
     test('Generates nothing if pubspec not specify assets strategy', () async {
       final assetDescriptions = {
         'pkg|assets/images/ic_one.png': '123',
-        'pkg|assets/fonts/NotoSans-Medium.ttf': '456',
         'pkg|assets/svg/ic_two.svg': '12455',
         'pkg|assets/strings/en.json': '''
 {
@@ -49,6 +45,8 @@ void main() {
       final optionsFile = File('r_options.yaml')
         ..createSync()
         ..writeAsStringSync('''
+generate_strings: true
+
 supported_locales:
   - en_US
   - en_GB
@@ -59,7 +57,6 @@ fallback_locale: en_US
 
       final assetDescriptions = {
         'pkg|assets/images/ic_one.png': '123',
-        'pkg|assets/fonts/NotoSans-Medium.ttf': '456',
         'pkg|assets/svg/ic_two.svg': '12455',
         'pkg|assets/strings/en_GB.json': '''{
     "label_lorem_ipsum": "Other lorem ipsum",
@@ -80,7 +77,6 @@ fallback_locale: en_US
       /// and those generators are using correct data from assetDescriptions
       final imageClassGenerator = ImageAssetClassGenerator(assets);
       final svgClassGenerator = SvgAssetClassGenerator(assets);
-      final fontClassGenerator = FontClassGenerator(assets);
       final stringsClassGenerator = StringsClassGenerator(
         localizationData: {
           'en_US': {
@@ -109,7 +105,6 @@ flutter:
   assets:
     - assets/images/
     - assets/svg/
-    - assets/fonts/
 ''',
         },
         generateFor: {
@@ -126,15 +121,12 @@ import 'package:flutter/material.dart';
 class R {
   static const images = ${imageClassGenerator.className}();
   static const svg = ${svgClassGenerator.className}();
-  static const fonts = ${fontClassGenerator.className}();
   static ${stringsClassGenerator.className} stringsOf(BuildContext context) => ${stringsClassGenerator.className}.of(context);
 }
 
 ${imageClassGenerator.generate()}
 
 ${svgClassGenerator.generate()}
-
-${fontClassGenerator.generate()}
 
 ${stringsClassGenerator.generate()}
 ''',
