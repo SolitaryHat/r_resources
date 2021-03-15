@@ -70,15 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.amber[500],
             ),
             SizedBox(height: 8),
-            Text('Font res:'),
-            SizedBox(height: 8),
-            Text(
-              'Lorem Ipsum',
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    fontFamily: R.fonts.noto_sans_bold,
-                  ),
-            ),
-            SizedBox(height: 8),
             Text('String res:'),
             SizedBox(height: 8),
             Text(R.stringsOf(context).label_lorem_ipsum),

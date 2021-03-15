@@ -1,3 +1,5 @@
+generate_strings: true
+
 supported_locales:
   - en_US
   - en_GB

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:build/build.dart';
 import 'package:meta/meta.dart' show protected;
 import 'package:path/path.dart';
@@ -9,7 +8,6 @@ import '../utils.dart';
 import 'class_generator.dart';
 
 abstract class AssetClassGenerator implements ClassGenerator {
-
   @protected
   String get assetFolderName;
 
@@ -40,7 +38,6 @@ abstract class AssetClassGenerator implements ClassGenerator {
     return classBuffer.toString();
   }
 
-  bool _isTargetAsset(AssetId asset) => 
-    asset.pathSegments.any((it) => it == assetFolderName);
-
+  bool _isTargetAsset(AssetId asset) =>
+      asset.pathSegments.any((it) => it == assetFolderName);
 }
