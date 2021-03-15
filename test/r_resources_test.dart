@@ -45,6 +45,8 @@ void main() {
       final optionsFile = File('r_options.yaml')
         ..createSync()
         ..writeAsStringSync('''
+generate_strings: true
+
 supported_locales:
   - en_US
   - en_GB
