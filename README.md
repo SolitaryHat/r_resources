@@ -19,7 +19,7 @@ dev_dependencies:
   r_resources: ^0.0.5
 ```
 
-To generate R-file, run build_runner: `flutter pub run build_runner build`. `r.dart` file will be created in `lib` filder
+To generate R-file, run build_runner: `flutter pub run build_runner build`. `r.dart` file will be created in `lib` folder
 
 ## Plain images and SVG 
 
@@ -202,10 +202,15 @@ Text(
 ## Planned features
 
 ☑ Plain images
+
 ☑ SVG
+
 ☑ String resources
+
 ☐ Colors
+
 ☐ Text styles
+
 ☐ Themes
 
 ## License
