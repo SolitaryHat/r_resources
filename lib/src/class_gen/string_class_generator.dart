@@ -4,7 +4,11 @@ import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'class_generator.dart';
 
+/// Generator for localized strings class and LocalizationDelegate for it
 class StringsClassGenerator implements ClassGenerator {
+
+  /// Creates StringsClassGenerator from Json content for each locale 
+  /// and locale parameters for LocalizationDelegate
   const StringsClassGenerator({
     required Map<String, Map<String, String>> localizationData,
     required List<String> supportedLocales,
@@ -91,6 +95,7 @@ class StringsClassGenerator implements ClassGenerator {
         .replaceAll('\$', '\\\$');
   }
 
+  /// creates get method for simple string and method for formatted string
   @visibleForTesting
   String createGetterForTranslation(
     String translationKey,

@@ -3,7 +3,9 @@ import 'package:meta/meta.dart' show protected;
 
 import 'asset_class_generator.dart';
 
+/// AssetClassGenerator to create references to plain images
 class SvgAssetClassGenerator extends AssetClassGenerator {
+  /// Creates SvgAssetClassGenerator with specified list of assets
   SvgAssetClassGenerator(this._assets);
 
   final List<AssetId> _assets;

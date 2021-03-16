@@ -1,6 +1,8 @@
 import 'package:build/build.dart';
 
+/// package internal String extensions
 extension FlutterResourcesStringExt on String {
+  /// gets filename from path
   String get fileName {
     return substring(
       lastIndexOf('/') + 1,
@@ -8,6 +10,7 @@ extension FlutterResourcesStringExt on String {
     );
   }
 
+  /// transforms string to valid dart property name
   String toValidPropertyName() {
     final validCharsString = replaceAllMapped(
       RegExp(r'[^_a-zA-Z0-9]+'),
@@ -28,6 +31,8 @@ extension FlutterResourcesStringExt on String {
   }
 }
 
+/// package internal AssetId extensions
 extension FlutterResourcesAssetExt on AssetId {
+  /// gets filename from AssetId
   String get fileName => pathSegments.last.fileName;
 }

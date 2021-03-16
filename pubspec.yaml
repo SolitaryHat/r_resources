@@ -1,7 +1,6 @@
 name: r_resources
-description: Builder package for generating R-resources file
-version: 0.0.5
-author: solitaryhat@yandex.ru
+description: Builder package for generating R file which contains project asset references
+version: 0.0.6
 homepage: https://github.com/SolitaryHat/r_resources
 
 environment:

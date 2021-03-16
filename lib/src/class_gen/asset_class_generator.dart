@@ -7,10 +7,14 @@ import 'package:path/path.dart';
 import '../utils.dart';
 import 'class_generator.dart';
 
+/// abstract ClassGenerator that is used to generate reference class
+/// by simply converting assets in specified folder to references
 abstract class AssetClassGenerator implements ClassGenerator {
+  /// Describes folder that used to filter all project assets
   @protected
   String get assetFolderName;
 
+  /// All project assets
   @protected
   List<AssetId> get assets;
 
